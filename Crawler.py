@@ -196,10 +196,19 @@ scraper_ins = LinkedInScraper()
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def test():
     """ up test """
-    print "testing, alive"
+    return "Testing, alive"
+
+
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return 'Server shutting down...'
 
 
 @app.route("/scrape", methods=["GET"])
@@ -210,7 +219,7 @@ def scrapeprofile():
     return scraper_ins.scrape_profile(puburl)
 
 
-@app.route("/search")
+@app.route("/search", methods=["GET"])
 def profilesearch():
     """ Given a first and last names, does the linkedin profile search and returns basic data about results """
     first = request.args.get("first")
@@ -220,7 +229,7 @@ def profilesearch():
     return scraper_ins.search_people(firstname=first, lastname=last)
 
 
-@app.route("/skillcount")
+@app.route("/skillcount", methods=["GET"])
 def skillCountsearch():
     """
     Given a first and last names, does the linkedin profile search, and returns data about results + counts of
